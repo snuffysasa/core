@@ -429,7 +429,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleDebugPlaySoundCommand(char* args);
         bool HandleDebugPlayScriptText(char* args);
         bool HandleDebugPlayMusicCommand(char* args);
-        
+
         bool HandleDebugSendBuyErrorCommand(char* args);
         bool HandleDebugSendChannelNotifyCommand(char* args);
         bool HandleDebugSendChatMsgCommand(char* args);
@@ -624,6 +624,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleNpcFollowCommand(char* args);
         bool HandleNpcInfoCommand(char* args);
         bool HandleNpcMoveCommand(char* args);
+        bool HandleNpcTempMoveCommand(char* args);
         bool HandleNpcPlayEmoteCommand(char* args);
         bool HandleNpcSayCommand(char* args);
         bool HandleNpcSetDeathStateCommand(char* args);

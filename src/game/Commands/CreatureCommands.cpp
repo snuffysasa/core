@@ -781,6 +781,65 @@ bool ChatHandler::HandleNpcDelVendorItemCommand(char* args)
     return true;
 }
 
+bool ChatHandler::HandleNpcTempMoveCommand(char* args) {
+  uint32 lowguid = 0;
+
+  Creature* pCreature = GetSelectedCreature();
+
+  if (!pCreature)
+  {
+      // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
+      if (!ExtractUint32KeyFromLink(&args, "Hcreature", lowguid))
+          return false;
+
+      CreatureData const* data = sObjectMgr.GetCreatureData(lowguid);
+      if (!data)
+      {
+          PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+          SetSentErrorMessage(true);
+          return false;
+      }
+
+      Player* player = m_session->GetPlayer();
+
+      if (player->GetMapId() != data->mapid)
+      {
+          PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
+          SetSentErrorMessage(true);
+          return false;
+      }
+
+      pCreature = player->GetMap()->GetCreature(data->GetObjectGuid(lowguid));
+  }
+  else
+      lowguid = pCreature->GetGUIDLow();
+
+  float x = m_session->GetPlayer()->GetPositionX();
+  float y = m_session->GetPlayer()->GetPositionY();
+  float z = m_session->GetPlayer()->GetPositionZ();
+  float o = m_session->GetPlayer()->GetOrientation();
+
+  if (pCreature)
+  {
+      if (CreatureData const* data = sObjectMgr.GetCreatureData(pCreature->GetGUIDLow()))
+      {
+          const_cast<CreatureData*>(data)->posX = x;
+          const_cast<CreatureData*>(data)->posY = y;
+          const_cast<CreatureData*>(data)->posZ = z;
+          const_cast<CreatureData*>(data)->orientation = o;
+      }
+      pCreature->GetMap()->CreatureRelocation(pCreature, x, y, z, o);
+      pCreature->GetMotionMaster()->Initialize();
+      if (pCreature->isAlive())                           // dead creature will reset movement generator at respawn
+      {
+          pCreature->SetDeathState(JUST_DIED);
+          pCreature->Respawn();
+      }
+  }
+  PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
+  return true;
+}
+
 bool ChatHandler::HandleNpcMoveCommand(char* args)
 {
     uint32 lowguid = 0;
@@ -1205,16 +1264,16 @@ bool ChatHandler::HandleNpcGroupLinkCommand(char * args)
     uint32 leaderGuidCounter = 0;
     if (!ExtractUInt32(&args, leaderGuidCounter))
         return false;
-    
+
     ExtractUInt32(&args, options);
-    
+
     Creature* leader = target->GetMap()->GetCreature(CreatureGroupsManager::ConvertDBGuid(leaderGuidCounter));
     if (!leader)
     {
         PSendSysMessage("Leader not found");
         return false;
     }
-    
+
     WorldDatabase.PExecute("DELETE FROM `creature_linking` WHERE `guid`=%u", target->GetGUIDLow());
         WorldDatabase.PExecute("INSERT INTO `creature_linking` SET `guid`=%u, `master_guid`=%u, `flag`='%u'",
             target->GetGUIDLow(), leaderGuidCounter, options);

@@ -521,6 +521,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "follow",         SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcFollowCommand,           "", nullptr },
         { NODE, "info",           SEC_MODERATOR,      false, &ChatHandler::HandleNpcInfoCommand,             "", nullptr },
         { NODE, "move",           SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcMoveCommand,             "", nullptr },
+        { NODE, "tempmove",       SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcTempMoveCommand,         "", nullptr },
         { NODE, "playemote",      SEC_TICKETMASTER,   false, &ChatHandler::HandleNpcPlayEmoteCommand,        "", nullptr },
         { NODE, "setmodel",       SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSetModelCommand,         "", nullptr },
         { NODE, "setmovetype",    SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSetMoveTypeCommand,      "", nullptr },
@@ -958,7 +959,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "",              SEC_TICKETMASTER,  true,  &ChatHandler::HandleGMTicketGetByIdOrNameCommand,    "", nullptr },
         { MSTR, nullptr,         0,                 false, nullptr,                                             "", nullptr }
     };
-    
+
     static ChatCommand serviceCommandTable[] =
     {
         { NODE, "del_characters",     SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleServiceDeleteCharacters,   "", nullptr },
