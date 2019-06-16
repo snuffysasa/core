@@ -737,6 +737,49 @@ bool ChatHandler::HandleNpcRainAliveGroupCommand(char* args)
 	return true;
 }
 
+bool ChatHandler::HandleNpcSummonGroupCommand(char* args)
+{
+	if (!*args)
+		return false;
+
+	uint32 id;
+	if (!ExtractUint32KeyFromLink(&args, "Hcreature_entry", id))
+		return false;
+
+	CreatureInfo const* cinfo = ObjectMgr::GetCreatureTemplate(id);
+	if (!cinfo)
+	{
+		PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, id);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	Player* chr = m_session->GetPlayer();
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			int range = 10 + 1;
+			int rNum = rand() % range + -5;
+			float xShift = ((2 - i) * 3) + rNum;
+			float yShift = ((2 - j) * 3) + rNum;
+			int oRange = 628;
+			float randO = (rand() % oRange) / 100;
+			float x = chr->GetPositionX() + xShift;
+			float y = chr->GetPositionY() + yShift;
+			float z = chr->GetPositionZ();
+			float o = randO;
+
+			Creature* summonedCreature = chr->SummonCreature(id, x, y, z, o);
+			summonedCreature->SetObjectScale(1.0);
+			summonedCreature->UpdateModelData();
+			summonedCreature->UpdateSpeed(MOVE_WALK, false, 4.0);
+			summonedCreature->UpdateSpeed(MOVE_RUN, false, 4.0);
+		}
+	}
+
+	return true;
+}
+
 bool ChatHandler::HandleNpcDeleteCommand(char* args)
 {
     Creature* unit = NULL;

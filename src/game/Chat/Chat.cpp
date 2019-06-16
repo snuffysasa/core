@@ -529,6 +529,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NODE, "spawntime",      SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSpawnTimeCommand,        "", nullptr },
         { NODE, "say",            SEC_TICKETMASTER,   false, &ChatHandler::HandleNpcSayCommand,              "", nullptr },
         { NODE, "summon",         SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSummonCommand,           "", nullptr },
+		{ NODE, "summongroup",    SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcSummonGroupCommand,      "", nullptr },
 		{ NODE, "dropsummon",     SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcDropSummonCommand,       "", nullptr },
         { NODE, "textemote",      SEC_TICKETMASTER,   false, &ChatHandler::HandleNpcTextEmoteCommand,        "", nullptr },
         { NODE, "unfollow",       SEC_GAMEMASTER,     false, &ChatHandler::HandleNpcUnFollowCommand,         "", nullptr },
