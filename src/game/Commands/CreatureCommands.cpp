@@ -608,6 +608,135 @@ bool ChatHandler::HandleNpcSummonCommand(char* args)
     return true;
 }
 
+bool ChatHandler::HandleNpcDropSummonCommand(char* args)
+{
+	if (!*args)
+		return false;
+
+	uint32 id;
+	if (!ExtractUint32KeyFromLink(&args, "Hcreature_entry", id))
+		return false;
+
+	CreatureInfo const* cinfo = ObjectMgr::GetCreatureTemplate(id);
+	if (!cinfo)
+	{
+		PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, id);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	Player* chr = m_session->GetPlayer();
+	Creature* summonedCreaturetemp = chr->SummonCreature(id, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ() + -5, chr->GetOrientation());
+	summonedCreaturetemp->DealDamage(summonedCreaturetemp, summonedCreaturetemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+	summonedCreaturetemp->RemoveCorpse();
+
+	//// The Falling Unit from above
+	int oRange = 628;
+	float randO = (rand() % oRange) / 100;
+	Creature* summonedCreature = chr->SummonCreature(id, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ() + 60, randO);
+	summonedCreature->KillAndDropCorpse();
+
+	return true;
+}
+
+
+
+bool ChatHandler::HandleNpcDropSummonGroupCommand(char* args)
+{
+	if (!*args)
+		return false;
+
+	uint32 id;
+	if (!ExtractUint32KeyFromLink(&args, "Hcreature_entry", id))
+		return false;
+
+	CreatureInfo const* cinfo = ObjectMgr::GetCreatureTemplate(id);
+	if (!cinfo)
+	{
+		PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, id);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	Player* chr = m_session->GetPlayer();
+
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+
+			//To hear Death noise
+			Creature* summonedCreaturetemp = chr->SummonCreature(id, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ() - 8, chr->GetOrientation());
+			summonedCreaturetemp->DealDamage(summonedCreaturetemp, summonedCreaturetemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+			summonedCreaturetemp->RemoveCorpse();
+
+			// The falling corpses
+			int range = 10 + 1;
+			int rNum = rand() % range + -5;
+			float xShift = ((2 - i) * 3) + rNum;
+			float yShift = ((2 - j) * 3) + rNum;
+			int heightRange = 1000;
+			float heightShift = rand() % heightRange + 50;
+			int oRange = 628;
+			float randO = (rand() % oRange) / 100;
+			Creature* summonedCreature = chr->SummonCreature(id, chr->GetPositionX() + xShift, chr->GetPositionY() + yShift, chr->GetPositionZ() + heightShift, randO);
+			summonedCreature->KillAndDropCorpse();
+		}
+	}
+
+	return true;
+}
+
+bool ChatHandler::HandleNpcRainAliveGroupCommand(char* args)
+{
+	if (!*args)
+		return false;
+
+	uint32 id;
+	if (!ExtractUint32KeyFromLink(&args, "Hcreature_entry", id))
+		return false;
+
+	CreatureInfo const* cinfo = ObjectMgr::GetCreatureTemplate(id);
+	if (!cinfo)
+	{
+		PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, id);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	Player* chr = m_session->GetPlayer();
+
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			int range = 10 + 1;
+			int rNum = rand() % range + -5;
+			float xShift = ((2 - i) * 3) + rNum;
+			float yShift = ((2 - j) * 3) + rNum;
+			int heightRange = 1000;
+			float heightShift = rand() % heightRange + 50;
+			int oRange = 628;
+			float randO = (rand() % oRange) / 100;
+			float x = chr->GetPositionX() + xShift;
+			float y = chr->GetPositionY() + yShift;
+			float z = chr->GetPositionZ() + heightShift;
+			float o = randO;
+
+			Creature* summonedCreature = chr->SummonCreature(id, x, y, z, o);
+			if (CreatureData const* data = sObjectMgr.GetCreatureData(summonedCreature->GetGUIDLow()))
+			{
+				const_cast<CreatureData*>(data)->posX = x;
+				const_cast<CreatureData*>(data)->posY = y;
+				const_cast<CreatureData*>(data)->posZ = chr->GetPositionZ();
+				const_cast<CreatureData*>(data)->orientation = o;
+			}
+			summonedCreature->GetMap()->CreatureRelocation(summonedCreature, x, y, chr->GetPositionZ(), o);
+			//summonedCreature->GetMotionMaster()->Initialize();
+		}
+	}
+
+	return true;
+}
+
 bool ChatHandler::HandleNpcDeleteCommand(char* args)
 {
     Creature* unit = NULL;

@@ -263,6 +263,47 @@ void Creature::RemoveCorpse()
     GetMap()->CreatureRelocation(this, x, y, z, o);
 }
 
+void Creature::RemoveCorpseAndRespawnAtLoc(float x, float y, float z, float o)
+{
+	if ((getDeathState() != CORPSE && !m_isDeadByDefault) || (getDeathState() != ALIVE && m_isDeadByDefault))
+		return;
+
+	m_corpseDecayTimer = 0;
+	SetDeathState(DEAD);
+	UpdateObjectVisibility();
+
+	// stop loot rolling before loot clear and for close client dialogs
+	StopGroupLoot();
+
+	loot.clear();
+	uint32 respawnDelay = 0;
+
+	if (AI())
+		AI()->CorpseRemoved(respawnDelay);
+
+	if (m_isCreatureLinkingTrigger)
+		GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DESPAWN, this);
+
+	// script can set time (in seconds) explicit, override the original
+	if (respawnDelay)
+		m_respawnTime = time(nullptr) + respawnDelay;
+
+	GetMap()->CreatureRelocation(this, x, y, z, o);
+}
+
+void Creature::KillAndDropCorpse()
+{
+	DealDamage(this, this->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
+	//// forced recreate creature object at clients
+	UnitVisibility currentVis = GetVisibility();
+	SetVisibility(VISIBILITY_RESPAWN);
+	SetUnitMovementFlags(MOVEFLAG_NONE);
+	UpdateObjectVisibility();
+	SetVisibility(currentVis);                              // restore visibility state
+	UpdateObjectVisibility();
+}
+
 /**
  * change the entry of creature until respawn
  */
@@ -1879,9 +1920,12 @@ void Creature::SetDeathState(DeathState s)
 
 bool Creature::FallGround()
 {
+	sLog.outError("fall ground");
     // Only if state is JUST_DIED. CORPSE_FALLING is set below and promoted to CORPSE later
-    if (getDeathState() != JUST_DIED)
-        return false;
+	//if (getDeathState() != JUST_DIED) {
+	//	sLog.outError("fall ground just died");
+	//	return false;
+	//}
 
     // use larger distance for vmap height search than in most other cases
     float tz = GetMap()->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), true, MAX_FALL_DISTANCE);
@@ -1909,6 +1953,7 @@ bool Creature::FallGround()
     init.MoveTo(GetPositionX(), GetPositionY(), tz);
     init.SetFall();
     init.Launch();
+	sLog.outError("fall ground return true");
     return true;
 }
 

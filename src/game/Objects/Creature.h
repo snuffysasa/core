@@ -708,6 +708,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsVisibleInGridForPlayer(Player* pl) const override;
 
         void RemoveCorpse();
+		void RemoveCorpseAndRespawnAtLoc(float x, float y, float z, float o);
+		void KillAndDropCorpse();
         bool IsDeadByDefault() const { return m_isDeadByDefault; };
 
         void ForcedDespawn(uint32 timeMSToDespawn = 0);

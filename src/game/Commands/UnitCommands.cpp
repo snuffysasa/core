@@ -1795,6 +1795,87 @@ bool ChatHandler::HandleCooldownCommand(char* args)
     return true;
 }
 
+bool ChatHandler::HandleDropCommand(char* /*args*/)
+{
+	Unit* target = GetSelectedUnit();
+
+	if (!target || !m_session->GetPlayer()->GetSelectionGuid())
+	{
+		SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	uint32 lowguid = target->GetGUIDLow();
+
+	PlayerCacheData* playerData = sObjectMgr.GetPlayerDataByGUID(lowguid);
+	CreatureData const* creatureData = sObjectMgr.GetCreatureData(lowguid);
+
+	if (!playerData && creatureData) {  /// Is a Creature
+		Creature* pCreature = m_session->GetPlayer()->GetMap()->GetCreature(creatureData->GetObjectGuid(lowguid));
+
+		float x = pCreature->GetPositionX();
+		float y = pCreature->GetPositionY();
+		float z = pCreature->GetPositionZ() + 50;
+		float o = pCreature->GetOrientation();
+
+		const_cast<CreatureData*>(creatureData)->posX = x;
+		const_cast<CreatureData*>(creatureData)->posY = y;
+		const_cast<CreatureData*>(creatureData)->posZ = z;
+		const_cast<CreatureData*>(creatureData)->orientation = o;
+		pCreature->GetMap()->CreatureRelocation(pCreature, x, y, z, o);
+		pCreature->GetMotionMaster()->Initialize();
+		if (pCreature->isAlive())                           // dead creature will reset movement generator at respawn
+		{
+			pCreature->SetDeathState(JUST_DIED);
+			pCreature->Respawn();
+		}
+	}
+	else if (playerData) {  /// Is a player
+		ObjectGuid playerGUID = sObjectMgr.GetPlayerGuidByName(playerData->sName);
+		Player* player = sObjectMgr.GetPlayer(playerGUID);
+		player->TeleportTo(player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ() + 50, player->GetOrientation());
+	}
+
+
+	PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
+	return true;
+}
+
+bool ChatHandler::HandleDropDeadCommand(char* /*args*/)
+{
+	Creature* pCreature = GetSelectedCreature();
+	if (!pCreature)
+	{
+		SendSysMessage(LANG_SELECT_CREATURE);
+		return true;
+	} else {  /// Is a Creature
+
+		CreatureData const* creatureData = sObjectMgr.GetCreatureData(pCreature->GetGUIDLow());
+
+		float x = pCreature->GetPositionX();
+		float y = pCreature->GetPositionY();
+		float z = pCreature->GetPositionZ() + 50;
+		float o = pCreature->GetOrientation();
+
+		const_cast<CreatureData*>(creatureData)->posX = x;
+		const_cast<CreatureData*>(creatureData)->posY = y;
+		const_cast<CreatureData*>(creatureData)->posZ = z;
+		const_cast<CreatureData*>(creatureData)->orientation = o;
+		pCreature->GetMap()->CreatureRelocation(pCreature, x, y, z, o);
+		pCreature->GetMotionMaster()->Initialize();
+		if (pCreature->isAlive())                           // dead creature will reset movement generator at respawn
+		{
+			pCreature->SetDeathState(JUST_DIED);
+			pCreature->Respawn();
+			pCreature->DealDamage(pCreature, pCreature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+		}
+	}
+
+	PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
+	return true;
+}
+
 bool ChatHandler::HandleDieCommand(char* /*args*/)
 {
     Unit* target = GetSelectedUnit();

@@ -609,6 +609,9 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleNpcAddCommand(char* args);
         bool HandleNpcAddWeaponCommand(char* args);
         bool HandleNpcSummonCommand(char* args);
+		bool HandleNpcRainAliveGroupCommand(char* args);
+		bool HandleNpcDropSummonCommand(char* args);
+		bool HandleNpcDropSummonGroupCommand(char* args);
         bool HandleNpcAddVendorItemCommand(char* args);
         bool HandleNpcAIInfoCommand(char* args);
         bool HandleNpcAllowMovementCommand(char* args);
@@ -825,6 +828,8 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleGetDistanceCommand(char* args);
         bool HandleGetAngleCommand(char* args);
         bool HandleModifyEmoteStateCommand(char* args);
+		bool HandleDropCommand(char* args);
+		bool HandleDropDeadCommand(char* args);
         bool HandleDieCommand(char* args);
         bool HandleFearCommand(char* args);
         bool HandleDamageCommand(char* args);
