@@ -641,7 +641,7 @@ bool ChatHandler::HandleNpcDropSummonCommand(char* args)
 
 
 
-bool ChatHandler::HandleNpcDropSummonGroupCommand(char* args)
+bool ChatHandler::HandleNpcRainBodiesCommand(char* args)
 {
 	if (!*args)
 		return false;
@@ -774,6 +774,7 @@ bool ChatHandler::HandleNpcSummonGroupCommand(char* args)
 			summonedCreature->UpdateModelData();
 			summonedCreature->UpdateSpeed(MOVE_WALK, false, 4.0);
 			summonedCreature->UpdateSpeed(MOVE_RUN, false, 4.0);
+			summonedCreature->MonsterYell("MOOOO", LANG_UNIVERSAL);
 		}
 	}
 
