@@ -453,6 +453,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
 
+		std::vector<Creature*> getCreatures();
+
         ScriptedEvent* GetScriptedMapEvent(uint32 id)
         {
             auto itr = m_mScriptedEvents.find(id);

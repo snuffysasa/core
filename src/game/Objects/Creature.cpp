@@ -2846,17 +2846,17 @@ time_t Creature::GetRespawnTimeEx() const
 
 void Creature::GetRespawnCoord(float &x, float &y, float &z, float* ori, float* dist) const
 {
-    // Nostalrius : pouvoir changer point de spawn d'un mob -> Creature::SetHomePosition
-    // if (m_HomeX > 0.1f || m_HomeX < -0.1f)
-    // {
-    //     x = m_HomeX;
-    //     y = m_HomeY;
-    //     z = m_HomeZ;
-    //     if (ori)
-    //         *ori = m_HomeOrientation;
-    //     if (dist)
-    //         *dist = GetRespawnRadius();
-    // }
+     //Nostalrius : pouvoir changer point de spawn d'un mob -> Creature::SetHomePosition
+     if (m_HomeX > 0.1f || m_HomeX < -0.1f)
+     {
+         x = m_HomeX;
+         y = m_HomeY;
+         z = m_HomeZ;
+         if (ori)
+             *ori = m_HomeOrientation;
+         if (dist)
+             *dist = GetRespawnRadius();
+     }
     if (CreatureData const* data = sObjectMgr.GetCreatureData(GetGUIDLow()))
     {
         x = data->posX;

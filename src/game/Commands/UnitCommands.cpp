@@ -1909,6 +1909,66 @@ bool ChatHandler::HandleDieCommand(char* /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleMassacreCommand(char* /*args*/)
+{
+	Player* player = m_session->GetPlayer();
+	std::vector<Creature*> creatureList = player->GetMap()->getCreatures();
+	float playerX = player->GetPositionX();
+	float playerY = player->GetPositionY();
+
+	for (Creature* creature : creatureList) {
+		if (creature->isAlive()) {
+			float creatureX = creature->GetPositionX();
+			float creatureY = creature->GetPositionY();
+			float distFromPlayer;
+			creature->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+		}
+	}
+	return true;
+}
+
+bool ChatHandler::HandleFearAllCommand(char* /*args*/)
+{
+	Player* player = m_session->GetPlayer();
+	std::vector<Creature*> creatureList = player->GetMap()->getCreatures();
+	float playerX = player->GetPositionX();
+	float playerY = player->GetPositionY();
+
+	const uint32 fearID = 26641;
+	SpellEntry const* spellInfo = sSpellMgr.GetSpellEntry(fearID);
+	if (!spellInfo)
+		return false;
+
+	for (Creature* creature : creatureList) {
+		if (creature->isAlive()) {
+			float creatureX = creature->GetPositionX();
+			float creatureY = creature->GetPositionY();
+			float distFromPlayer;
+
+			SpellAuraHolder* holder = CreateSpellAuraHolder(spellInfo, creature, m_session->GetPlayer());
+
+			for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+			{
+				uint8 eff = spellInfo->Effect[i];
+				if (eff >= TOTAL_SPELL_EFFECTS)
+					continue;
+				if (Spells::IsAreaAuraEffect(eff) ||
+					eff == SPELL_EFFECT_APPLY_AURA ||
+					eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+				{
+					Aura* aur = CreateAura(spellInfo, SpellEffectIndex(i), NULL, holder, creature);
+					holder->AddAura(aur, SpellEffectIndex(i));
+				}
+			}
+
+			if (!creature->AddSpellAuraHolder(holder))
+				holder = nullptr;
+		}
+	}
+	return true;
+}
+
+
 bool ChatHandler::HandleFearCommand(char* /*args*/)
 {
     Unit* target = GetSelectedUnit();
