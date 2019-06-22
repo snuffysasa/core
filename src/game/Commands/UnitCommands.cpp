@@ -1927,6 +1927,27 @@ bool ChatHandler::HandleMassacreCommand(char* /*args*/)
 	return true;
 }
 
+bool ChatHandler::HandleMorphAllCommand(char* args)
+{
+	Player* player = m_session->GetPlayer();
+	std::vector<Creature*> creatureList = player->GetMap()->getCreatures();
+	float playerX = player->GetPositionX();
+	float playerY = player->GetPositionY();
+
+	uint16 display_id = (uint16)atoi(args);
+
+	for (Creature* creature : creatureList) {
+		if (creature->isAlive()) {
+			float creatureX = creature->GetPositionX();
+			float creatureY = creature->GetPositionY();
+			float distFromPlayer;
+
+			creature->SetDisplayId(display_id);
+		}
+	}
+	return true;
+}
+
 bool ChatHandler::HandleFearAllCommand(char* /*args*/)
 {
 	Player* player = m_session->GetPlayer();
