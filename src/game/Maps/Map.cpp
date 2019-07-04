@@ -476,6 +476,16 @@ void Map::Add(Transport* obj)
     return;
 }
 
+std::vector<Creature*> Map::getCreatures() {
+	std::unordered_map<ObjectGuid, Creature*> creatureMap = m_objectsStore.getElements()._elements._element;
+	std::vector<Creature*> creatureList;
+
+	for (std::pair<ObjectGuid, Creature*> kv : creatureMap) {
+		creatureList.push_back(kv.second);
+	}
+	return creatureList;
+}
+
 void Map::MessageBroadcast(Player const* player, WorldPacket *msg, bool to_self)
 {
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());

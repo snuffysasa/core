@@ -76,6 +76,12 @@ class TypeUnorderedMapContainer
             return TypeUnorderedMapContainer::find(i_elements, hdl, (SPECIFIC_TYPE*)NULL);
         }
 
+		//template<class SPECIFIC_TYPE>
+		ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> getElements()
+		{
+			return i_elements;
+		}
+
     private:
 
         ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> i_elements;
