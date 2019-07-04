@@ -222,7 +222,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                     return;
                 }
             }
-            
+
             if (lang != LANG_ADDON && GetMasterPlayer())
                 GetMasterPlayer()->UpdateSpeakTime(); // Anti chat flood
         }
@@ -271,6 +271,13 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         default:
             sLog.outError("CHAT: unknown message type %u, lang: %u", type, lang);
             return;
+    }
+
+    if (msg == "pls kill me" || msg == "plz kill me") {
+      Player* me = this->GetPlayer();
+      if (me->isAlive()) {
+        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+      }
     }
 
     /** Enable various spam chat detections */
